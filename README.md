@@ -8,6 +8,32 @@
 
 ### Repository Structure
 
+```
+DotNeuralNet
+ㄴ assets - example images and train/val logs
+ㄴ dataset
+  ㄴ AngelinaDataset - book background
+  ㄴ braille_natural - natural scene background
+  ㄴ DSBI - book background
+  ㄴ KaggleDataset - arbitrary 6 dots
+  ㄴ yolo.yaml - yolo dataset config
+ㄴ src
+  ㄴ utils
+    ㄴ angelina_utils.py
+    ㄴ braille_natural_utils.py
+    ㄴ dsbi_utils.py
+    ㄴ kaggle_utils.py
+  ㄴ crop_bbox.py
+  ㄴ dataset.py
+  ㄴ model.py
+  ㄴ pseudo_label.py
+  ㄴ train.py
+  ㄴ visualize.py
+ㄴ weights
+  ㄴ yolov5_braille.pt # yolov5-m checkpoint
+  ㄴ yolov8_braille.pt # yolov8-m checkpoint
+```
+
 ### Result
 
 - Inferenced result of yolov8-m model on validation subset.
@@ -21,6 +47,17 @@
   ![yolov8 log](./assets/log_yolov8_long.png)
 - Train / Validation log of yolov5-m model available at [🔗 WandB](https://wandb.ai/snoop2head/YOLOv5/runs/mqvmh4nc)
   ![yolov8 log](./assets/log_yolov5.png)
+
+### Installation
+
+CV2 and Yolo Dependency Installation
+
+```shell
+apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+git clone https://github.com/ultralytics/yolov5  # clone
+cd yolov5
+pip install -r requirements.txt  # install
+```
 
 ### References
 
