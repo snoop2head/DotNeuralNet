@@ -1,5 +1,7 @@
 # DotNeuralNet
 
+[![Streamlit Demo App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://huggingface.co/spaces/snoop2head/braille-detection)
+
 **Light-weight Neural Network for Optical Braille Recognition in the wild & on the book.**
 
 - Classified multi label one-hot encoded labels for raised dots.
