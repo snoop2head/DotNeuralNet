@@ -5,14 +5,15 @@ Reference
 - https://huggingface.co/keremberke/yolov8m-valorant-detection/tree/main
 - https://docs.ultralytics.com/usage/python/
 """
-from pathlib import Path
+import time
 import PIL
 
 import streamlit as st
 import torch
 from ultralyticsplus import YOLO, render_result
 
-from convert import convert_to_braille_unicode
+from convert import convert_to_braille_unicode, parse_xywh_and_class
+
 
 def load_model(model_path):
     """load model from path"""
@@ -53,51 +54,59 @@ source_img = None
 source_img = st.sidebar.file_uploader(
     "Choose an image...", type=("jpg", "jpeg", "png", "bmp", "webp")
 )
-c = st.container()
+col1, col2 = st.columns(2)
 
 # left column of the page body
-
-if source_img is None:
-    default_image_path = "./images/example.jpeg"
-    image = load_image(default_image_path)
-    st.image(default_image_path, caption="Example Input Image", use_column_width=True)
-else:
-    image = load_image(source_img)
-    st.image(source_img, caption="Uploaded Image", use_column_width=True)
+with col1:
+    if source_img is None:
+        default_image_path = "./images/alpha-numeric.jpeg"
+        image = load_image(default_image_path)
+        st.image(
+            default_image_path, caption="Example Input Image", use_column_width=True
+        )
+    else:
+        image = load_image(source_img)
+        st.image(source_img, caption="Uploaded Image", use_column_width=True)
 
 # right column of the page body
-
-if source_img is None:
-    default_detected_image_path = "./images/example_detected.jpeg"
-    image = load_image(default_detected_image_path)
-    st.image(
-        default_detected_image_path,
-        caption="Example Detected Image",
-        use_column_width=True,
-    )
-else:
-    with torch.no_grad():
-        res = model.predict(
-            image, save=True, save_txt=True, exist_ok=True, conf=conf
-        )
-        boxes = res[0].boxes
-        res_plotted = res[0].plot()[:, :, ::-1]
-        st.image(res_plotted, caption="Detected Image", use_column_width=True)
-        IMAGE_DOWNLOAD_PATH = f"runs/detect/predict/image0.jpg"
-        with open(IMAGE_DOWNLOAD_PATH, "rb") as fl:
-            st.download_button(
-                "Download object-detected image",
-                data=fl,
-                file_name="image0.jpg",
-                mime="image/jpg",
-            )
-        # for r in res:
-        #     for c in r.boxes.cls:
-        #         print(convert_to_braille_unicode(model.names[int(c)]))
+with col2:
+    with st.spinner("Wait for it..."):
+        start_time = time.time()
     try:
-        with st.expander("Detection Results"):
-            for box in boxes:
-                st.write(box.xywh)
+        with torch.no_grad():
+            res = model.predict(
+                image, save=True, save_txt=True, exist_ok=True, conf=conf
+            )
+            boxes = res[0].boxes  # first image
+            res_plotted = res[0].plot()[:, :, ::-1]
+
+            list_boxes = parse_xywh_and_class(boxes)
+
+            st.image(res_plotted, caption="Detected Image", use_column_width=True)
+            IMAGE_DOWNLOAD_PATH = f"runs/detect/predict/image0.jpg"
 
     except Exception as ex:
         st.write("Please upload image with types of JPG, JPEG, PNG ...")
+
+
+try:
+    st.success(f"Done! Inference time: {time.time() - start_time:.2f} seconds")
+    st.subheader("Detected Braille Patterns")
+    for box_line in list_boxes:
+        str_left_to_right = ""
+        box_classes = box_line[:, -1]
+        for each_class in box_classes:
+            str_left_to_right += convert_to_braille_unicode(
+                model.names[int(each_class)]
+            )
+        st.write(str_left_to_right)
+except Exception as ex:
+    st.write("Please try again with images with types of JPG, JPEG, PNG ...")
+
+with open(IMAGE_DOWNLOAD_PATH, "rb") as fl:
+    st.download_button(
+        "Download object-detected image",
+        data=fl,
+        file_name="image0.jpg",
+        mime="image/jpg",
+    )
