@@ -63,7 +63,7 @@ pip install -r requirements.txt  # install
 
 ### How to Run
 
-- Please refer to `src/inference.py` or `src/demo.py` to run the model. 
+- Please refer to `src/inference.py` or `src/demo.py` to run the model.
 - For online demo, please visit [🔗 Streamlit demo](https://huggingface.co/spaces/snoop2head/braille-detection).
 
 ```python
@@ -102,9 +102,14 @@ for box_line in list_boxes:
     result += str_left_to_right + "\n"
 
 print(result)
+"""
+⠁⠃⠉⠋⠙⠑⠙⠋⠛⠓⠊⠑
+⠓⠇⠇⠍⠝⠕⠏⠟⠗
+⠎⠞⠥⠼⠗⠭⠵
+⠼⠧⠚⠁⠃⠉⠙⠑⠙⠛⠚⠊⠑
+"""
+
 ```
-
-
 
 ### References
 
