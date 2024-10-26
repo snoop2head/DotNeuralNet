@@ -116,7 +116,7 @@ print(result)
 If you find DotNeuralNet useful for your research, please consider citing the repository:
 
 ```
-@misc{ahn2024dotneuralnet,
+@misc{ahn2023dotneuralnet,
   author={Ahn, Young Jin},
   title={DotNeuralNet: Light-weight Neural Network for Optical Braille Recognition in the Wild},
   year={2023},
