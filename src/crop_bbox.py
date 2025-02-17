@@ -19,15 +19,19 @@ def label_to_one_hot(label, num_classes=6):
     return one_hot
 
 
-def crop_dsbi_bbox(target_dir="./cropped_images/braille_classification_DSBI"):
-
+def crop_dsbi_bbox():
+    target_dir="./dataset/DSBI/DSBI/cropped_images"
     if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+        os.makedirs(target_dir,exist_ok=True)
     path = os.getcwd()
-    images_paths = glob(os.path.join(path, "../dataset/DSBI/**/*recto.jpg"))
-    labels_paths = glob(os.path.join(path, "../dataset/DSBI/**/*recto.txt"))
-
-    os.makedirs(target_dir, exist_ok=True)
+    dataset_dir = os.path.join(path, "dataset", "DSBI", "DSBI","data")
+    if not os.path.isdir(dataset_dir):
+        raise FileNotFoundError(f"Directory '{dataset_dir}' does not exist.")
+    images_paths = glob(os.path.join(dataset_dir, "**/*recto.jpg"), recursive=True)
+    labels_paths = glob(os.path.join(dataset_dir, "**/*recto.txt"), recursive=True)
+    print("Image paths:", images_paths)
+    print("Label paths:", labels_paths)
+    
 
     for i, (image_path) in enumerate(images_paths):
         label_path = image_path.replace(".jpg", ".txt")
@@ -43,51 +47,67 @@ def crop_dsbi_bbox(target_dir="./cropped_images/braille_classification_DSBI"):
             im = Image.fromarray(im)
             cropped_image_name = image_name.replace(".jpg", f"_{label}.jpg")
             im.save(os.path.join(target_dir, cropped_image_name))
+    print("complete")
 
-
-def crop_angelina_bbox(
-    img_path, bbox_path, target_dir="./cropped_images/braille_classification_angelina"
-):
+def crop_angelina_bbox():
     """crop bounding box and save as cropped images with label name"""
-    # read image
-    img = cv2.imread(img_path)
-    # read bbox
-    with open(bbox_path, "r") as f:
-        bbox = json.load(f)
-    # crop and save
-    for shape in bbox["shapes"]:
-        points = np.array(shape["points"])
-        x1 = int(points[:, 0].min())
-        y1 = int(points[:, 1].min())
-        x2 = int(points[:, 0].max())
-        y2 = int(points[:, 1].max())
-        # crop
-        crop_img = img[y1:y2, x1:x2]
-        # label
-        label = transform_angelina_label(shape["label"])
-        label = label_to_one_hot(label)
 
-        # make dir for output
-        if not os.path.exists(target_dir):
-            os.makedirs(target_dir)
-        # img_path basename + coordinate + label
-        save_path = os.path.join(
-            target_dir,
-            os.path.basename(img_path).replace(".jpg", "")
-            + "_"
-            + str(x1)
-            + "_"
-            + str(y1)
-            + "_"
-            + str(x2)
-            + "_"
-            + str(y2)
-            + "_"
-            + label
-            + ".jpg",
-        )
-        try:
-            cv2.imwrite(save_path, crop_img)
-        except:
-            print("error: ", save_path)
-            continue
+    target_dir="./dataset/AngelinaDataset/AngelinaDataset/cropped_images"
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir,exist_ok=True)
+    path = os.getcwd()
+    dataset_dir = os.path.join(path, "dataset", "AngelinaDataset", "AngelinaDataset")
+    if not os.path.isdir(dataset_dir):
+        raise FileNotFoundError(f"Directory '{dataset_dir}' does not exist.")
+    images_paths = glob(os.path.join(dataset_dir, "**/**/*.jpg"), recursive=True)
+    print("Image paths:", images_paths)
+    
+
+    for i, (img_path) in enumerate(images_paths):
+        # read image
+        img = cv2.imread(img_path)
+        bbox_path = img_path.replace(".jpg", ".json")
+        # read bbox
+        with open(bbox_path, "r") as f:
+            bbox = json.load(f)
+        # Add the validation that removes the pics and src folder
+        # crop and save
+        for shape in bbox["shapes"]:
+            points = np.array(shape["points"])
+            x1 = int(points[:, 0].min())
+            y1 = int(points[:, 1].min())
+            x2 = int(points[:, 0].max())
+            y2 = int(points[:, 1].max())
+            # crop
+            crop_img = img[y1:y2, x1:x2]
+            # label
+            label = transform_angelina_label(shape["label"])
+            label = label_to_one_hot(label)
+
+            # make dir for output
+            if not os.path.exists(target_dir):
+                os.makedirs(target_dir)
+            # img_path basename + coordinate + label
+            save_path = os.path.join(
+                target_dir,
+                os.path.basename(img_path).replace(".jpg", "")
+                + "_"
+                + str(x1)
+                + "_"
+                + str(y1)
+                + "_"
+                + str(x2)
+                + "_"
+                + str(y2)
+                + "_"
+                + label
+                + ".jpg",
+            )
+            try:
+                cv2.imwrite(save_path, crop_img)
+            except:
+                print("error: ", save_path)
+                continue
+if __name__ == "__main__":
+    crop_dsbi_bbox()
+    crop_angelina_bbox()

@@ -27,9 +27,12 @@ default_transform = transforms.Compose(
 
 class BrailleDataset(Dataset):
     def __init__(self, transform=default_transform):
-        self.kaggle_path = "./dataset/KaggleDataset/cropped_images"
-        self.angelina_path = "./dataset/AngelinaDataset/cropped_images"
-        self.dsbi_path = "./dataset/DSBI/cropped_images"
+        self.kaggle_path = "./dataset/KaggleDataset/Braille Dataset"
+        self.angelina_path = "./dataset/AngelinaDataset/AngelinaDataset/cropped_images"
+        self.dsbi_path = "./dataset/DSBI/DSBI/cropped_images"
+        assert os.path.exists(self.kaggle_path)
+        assert os.path.exists(self.angelina_path)
+        assert os.path.exists(self.dsbi_path)
 
         self.alphabet_map = get_alphabet_map(path="./src/utils/alphabet_map.json")
         self.transform = transform
